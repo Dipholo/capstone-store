@@ -21,6 +21,7 @@
 
 /* Navigation links */
 .nav-links ul {
+  align-items: center; /* Center vertically */
   list-style-type: none; /* Remove default list styling */
   display: flex; /* Display links in a row */
   margin: 0;
@@ -45,6 +46,17 @@
 /* Active link styling */
 .nav-item.active a {
   color: rgb(255, 0, 0); /* Red color for active link */
+}
+.user-info {
+  margin-left: 0rem;
+  display: flex;
+  align-items: center;
+}
+
+.username {
+  color: #ffffff;
+  margin-right: 0.5rem;
+  font-size: 1rem;
 }
 
 /* Logout button */

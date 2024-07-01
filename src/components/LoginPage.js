@@ -1,17 +1,15 @@
-// src/components/LoginPage.js
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import "./LoginPage.css";
+import ErrorPopup from "./ErrorPopup"; // Import ErrorPopup component
 
-// Import necessary components and functions from React and other libraries
-import React from "react";
-import { useNavigate } from "react-router-dom"; // Use navigate hook for navigation
-import { Formik, Form, Field, ErrorMessage } from "formik"; // Formik components for form handling
-import * as Yup from "yup"; // Yup for form validation
-import "../styles/LoginPage.css"; // Import CSS file for styling
-
-// Define the LoginPage component
 const LoginPage = () => {
-  const navigate = useNavigate(); // Initialize navigate function from useNavigate hook
+  const navigate = useNavigate();
+  const [showError, setShowError] = useState(false); // State to control error popup visibility
+  const [errorMessage, setErrorMessage] = useState(""); // State to store error message
 
-  // Form validation schema using Yup
   const validationSchema = Yup.object({
     email: Yup.string().email("Invalid email address").required("Required"),
     password: Yup.string()
@@ -19,29 +17,29 @@ const LoginPage = () => {
       .required("Required"),
   });
 
-  // Handle form submission
   const handleSubmit = (values) => {
-    const registeredUser = JSON.parse(localStorage.getItem("registeredUser")); // Retrieve registered user from localStorage
-
-    // Check if registered user exists
+    const registeredUser = JSON.parse(localStorage.getItem("registeredUser"));
     if (registeredUser) {
       const { email, password } = values;
-
-      // Check if entered credentials match registered user
       if (
         registeredUser.email === email &&
         registeredUser.password === password
       ) {
-        navigate("/products", { state: { user: registeredUser } }); // Navigate to main screen with user data
+        navigate("/products", { state: { user: registeredUser } });
       } else {
-        alert("Invalid email or password."); // Alert if credentials do not match
+        setErrorMessage("Invalid email or password."); // Set error message for invalid credentials
+        setShowError(true); // Show error popup for invalid credentials
       }
     } else {
-      alert("No registered user found. Please register first."); // Alert if no registered user found
+      setErrorMessage("No registered user found. Please register first.");
+      setShowError(true); // Show error popup for no registered user
     }
   };
 
-  // Render the login form using Formik for form management and Yup for validation
+  const closeErrorPopup = () => {
+    setShowError(false); // Close error popup
+  };
+
   return (
     <div className="container">
       <h1 className="header">Login</h1>
@@ -64,9 +62,15 @@ const LoginPage = () => {
           <button type="submit">Login</button>
         </Form>
       </Formik>
+
+      {/* ErrorPopup component for displaying error messages */}
+      <ErrorPopup
+        isOpen={showError}
+        onClose={closeErrorPopup}
+        message={errorMessage}
+      />
     </div>
   );
 };
 
-// Export the LoginPage component as the default export
 export default LoginPage;

@@ -73,6 +73,13 @@
   margin-left: 10px; /* Space to the left of the button */
   width: 10vw; /* Width of the button */
 }
+.total-price {
+  text-align: center;
+  margin-top: 60px;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
 
 /* Media query for smaller screens (max width 768px) */
 @media (max-width: 768px) {

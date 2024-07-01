@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { faWhatsapp, faFacebook } from "@fortawesome/free-brands-svg-icons";
-import { Button, Form } from "react-bootstrap";
+import { Button, Form, Modal } from "react-bootstrap";
 import ErrorPopup from "./ErrorPopup"; // Import ErrorPopup component
 import "./Contact.css"; // Custom CSS for Contact page
 
@@ -14,6 +14,7 @@ const Contact = () => {
   const [message, setMessage] = useState(""); // State for the user's message
   const [showErrorModal, setShowErrorModal] = useState(false); // State to control the error modal visibility
   const [errorMessage, setErrorMessage] = useState(""); // State for the error message
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // State to control the success modal visibility
 
   // Function to handle sending a message via email
   const handleSendMessage = async () => {
@@ -32,7 +33,7 @@ const Contact = () => {
 
       if (response.ok) {
         setShowErrorModal(false); // Close error modal if open
-        alert("Message sent successfully!"); // Temporary alert for success
+        setShowSuccessModal(true); // Show success modal
       } else {
         openErrorModal("Failed to send message. Please try again later.");
       }
@@ -45,7 +46,7 @@ const Contact = () => {
   // Function to handle sending a message via WhatsApp
   const handleSendWhatsapp = () => {
     window.open(
-      `https://api.whatsapp.com/send?phone=+26659542362&text=${encodeURIComponent(
+      `https://api.whatsapp.com/send?phone=0027799008449&text=${encodeURIComponent(
         message
       )}`
     );
@@ -53,9 +54,7 @@ const Contact = () => {
 
   // Function to handle sending a message via Facebook
   const handleSendFacebook = () => {
-    window.open(
-      "https://www.facebook.com/profile.php?id=100092022853358&mibextid=ZbWKwL"
-    );
+    window.open("https://web.facebook.com/profile.php?id=100068827675227");
   };
 
   // Function to open the error modal with a specific error message
@@ -66,6 +65,9 @@ const Contact = () => {
 
   // Function to close the error modal
   const closeErrorModal = () => setShowErrorModal(false);
+
+  // Function to close the success modal
+  const closeSuccessModal = () => setShowSuccessModal(false);
 
   return (
     <div className="contact-page">
@@ -154,6 +156,21 @@ const Contact = () => {
         onClose={closeErrorModal}
         message={errorMessage}
       />
+
+      {/* Success Popup */}
+      <Modal show={showSuccessModal} onHide={closeSuccessModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Message Sent Successfully</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Your message has been sent successfully!</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeSuccessModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };

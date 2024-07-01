@@ -1,14 +1,13 @@
-// src/components/RegistrationPage.js
-
-// Import necessary components and hooks from React and Formik/Yup for form handling and validation
 import React, { useState } from "react";
-import { Formik, Form, Field, ErrorMessage } from "formik"; // Formik components for form handling
-import * as Yup from "yup"; // Yup for form validation
-import "../styles/RegistrationPage.css"; // Import CSS for styling
+import { Formik, Form, Field, ErrorMessage } from "formik"; // Import Formik components for form handling
+import * as Yup from "yup"; // Import Yup for form validation
+import "./RegistrationPage.css"; // Import CSS for styling
+import ErrorPopup from "./ErrorPopup"; // Import ErrorPopup component for displaying errors
+import SuccessPopup from "./SuccessPopup"; // Import SuccessPopup component for displaying success messages
 
-// RegistrationPage component
 const RegistrationPage = () => {
-  const [registrationError, setRegistrationError] = useState(""); // State variable to manage registration errors
+  const [registrationError, setRegistrationError] = useState(""); // State variable for registration errors
+  const [registrationSuccess, setRegistrationSuccess] = useState(false); // State variable for success message
 
   // Validation schema using Yup for form validation
   const validationSchema = Yup.object({
@@ -30,30 +29,45 @@ const RegistrationPage = () => {
       .required("Required"),
   });
 
-  // Function to handle form submission
+  // Handle form submission
   const handleSubmit = (values) => {
-    const { confirmPassword, ...userData } = values; // Destructure values and omit confirmPassword from user data
+    const { confirmPassword, ...userData } = values;
 
-    // Retrieve registered user data from localStorage
     const registeredUser = JSON.parse(localStorage.getItem("registeredUser"));
 
     // Check if user is already registered
     if (registeredUser && registeredUser.email === userData.email) {
-      setRegistrationError("User already registered. Please login instead."); // Set error message if user is already registered
+      setRegistrationError("User already registered. Please login instead.");
     } else {
       localStorage.setItem("registeredUser", JSON.stringify(userData)); // Store user data in localStorage
       setRegistrationError(""); // Clear registration error message
-      alert("Registration successful!"); // Alert user upon successful registration
+      setRegistrationSuccess(true); // Set registration success state to true
     }
   };
 
-  // Render registration form using Formik
+  // Function to close error popup
+  const closeErrorPopup = () => {
+    setRegistrationError("");
+  };
+
+  // Function to close success popup
+  const closeSuccessPopup = () => {
+    setRegistrationSuccess(false); // Close success popup
+  };
+
   return (
     <div className="container">
-      {/* Heading for registration form */}
       <h1 className="header">Register</h1>
-      {/* Display registration error message if any */}
-      {registrationError && <div className="error">{registrationError}</div>}
+
+      {/* Display error popup if registrationError is not empty */}
+      {registrationError && (
+        <ErrorPopup
+          isOpen={true}
+          onClose={closeErrorPopup}
+          message={registrationError}
+        />
+      )}
+
       {/* Formik component for managing form state, validation, and submission */}
       <Formik
         initialValues={{
@@ -101,9 +115,17 @@ const RegistrationPage = () => {
           <button type="submit">Register</button>
         </Form>
       </Formik>
+
+      {/* Display success popup if registrationSuccess is true */}
+      {registrationSuccess && (
+        <SuccessPopup
+          isOpen={true}
+          onClose={closeSuccessPopup}
+          message="Registration successful!"
+        />
+      )}
     </div>
   );
 };
 
-// Export RegistrationPage component as the default export
 export default RegistrationPage;

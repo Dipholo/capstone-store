@@ -5,15 +5,7 @@ import "./HomePage.css"; // Custom CSS for HomePage
 const HomePage = () => {
   return (
     <div className="main-container">
-      {/* Logo section */}
-      <div className="logo" style={{ marginLeft: "7vw" }}>
-        <img
-          src="https://img.freepik.com/premium-vector/design-sports-logo-jahgsport-shoe-store-specializing-athletic-footwear-logo_764382-7809.jpg"
-          alt="logo"
-          style={{ width: "4vw", height: "8vh", marginTop: "0rem" }}
-        />
-      </div>
-
+    
       {/* Call to Action buttons */}
       <div className="cta-buttons">
         <Link
