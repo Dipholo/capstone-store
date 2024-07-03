@@ -1,35 +1,68 @@
-import React, { useState } from "react";
-import { useCart } from "../CartContext"; // Import the custom cart context
-import { Button, Card, Modal, Form } from "react-bootstrap"; // Import Bootstrap components
-import "./Cart.css"; // Import custom CSS for Cart page
+import React, { useState } from "react"; // Import React and useState hook
+import { useCart } from "../CartContext"; // Import useCart hook from CartContext
+import { Button, Card, Modal, Form } from "react-bootstrap"; // Import necessary components from react-bootstrap
+import { useSelector, useDispatch } from "react-redux"; // Import hooks from react-redux
+import "./Cart.css"; // Import Cart-specific CSS
 
 const Cart = ({ clearTotalPrice }) => {
-  const { cartItems, clearCart } = useCart(); // Destructure cartItems and clearCart from the custom cart context
-  const [showModal, setShowModal] = useState(false); // State to manage modal visibility
+  // Destructure clearTotalPrice prop
+  const { cartItems, clearCart } = useCart(); // Get cart items and clearCart function from CartContext
+  const [showHelpModal, setShowHelpModal] = useState(false); // State for showing/hiding Help modal
+  const [showShippingModal, setShowShippingModal] = useState(false); // State for showing/hiding Shipping modal
+  const [showPaymentModal, setShowPaymentModal] = useState(false); // State for showing/hiding Payment modal
+  const [showAlertModal, setShowAlertModal] = useState(false); // State for showing/hiding Alert modal
 
-  // Function to handle clearing the cart
+  // State for payment form fields
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+
+  const shippingMethod = useSelector((state) => state.shipping.shippingMethod); // Get the selected shipping method from the Redux store
+  const dispatch = useDispatch(); // Get the dispatch function from Redux
+
+  // Function to clear the cart and total price
   const handleClearCart = () => {
-    clearCart(); // Clear the cart items
-    clearTotalPrice(); // Clear the total price
+    clearCart();
+    clearTotalPrice();
   };
 
-  // Function to handle cashout (to be implemented)
+  // Function to show the Shipping modal
   const handleCashout = () => {
-    setShowModal(true); // Show the modal
+    setShowShippingModal(true);
   };
 
-  // Function to handle closing the modal
+  // Function to close all modals
   const handleCloseModal = () => {
-    setShowModal(false); // Hide the modal
+    setShowHelpModal(false);
+    setShowShippingModal(false);
+    setShowPaymentModal(false);
+    setShowAlertModal(false);
   };
 
-  // Calculate the total price of the items in the cart
+  // Function to handle selecting a shipping method
+  const handleSelectShippingMethod = (method) => {
+    dispatch({ type: "SET_SHIPPING_METHOD", payload: method }); // Dispatch action to set the shipping method in the Redux store
+    setShowShippingModal(false); // Close the Shipping modal
+    setShowPaymentModal(true); // Show the Payment modal
+  };
+
+  // Calculate the total price of items in the cart
   const totalPrice = cartItems.reduce((total, item) => total + item.price, 0);
 
-  // Function to handle displaying help information
+  // Function to show the Help modal
   const handleRequestHelp = () => {
-    setShowModal(true); // Show the modal
-    // Additional logic to fetch or display help information
+    setShowHelpModal(true);
+  };
+
+  // Function to handle payment
+  const handlePayment = () => {
+    // Check if all payment fields are filled
+    if (cardNumber && expiryDate && cvv) {
+      alert("Payment processed");
+      setShowPaymentModal(false); // Close the Payment modal
+    } else {
+      setShowAlertModal(true); // Show the Alert modal if fields are not filled
+    }
   };
 
   return (
@@ -58,7 +91,6 @@ const Cart = ({ clearTotalPrice }) => {
         ) : (
           <div>
             <div className="row">
-              {/* Mapping over cart items to display each item */}
               {cartItems.map((item, index) => (
                 <div className="col-md-2 mb-4" key={index}>
                   <Card className="h-100">
@@ -83,8 +115,106 @@ const Cart = ({ clearTotalPrice }) => {
         )}
       </div>
 
-      {/* Modal for help information */}
-      <Modal show={showModal} onHide={handleCloseModal}>
+      <Modal show={showShippingModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Select Shipping Method</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Check
+                type="radio"
+                label="Standard Shipping: 5-7 business days"
+                name="shippingMethod"
+                onChange={() => handleSelectShippingMethod("Standard Shipping")}
+                checked={shippingMethod === "Standard Shipping"}
+              />
+              <Form.Check
+                type="radio"
+                label="Express Shipping: 2-3 business days"
+                name="shippingMethod"
+                onChange={() => handleSelectShippingMethod("Express Shipping")}
+                checked={shippingMethod === "Express Shipping"}
+              />
+              <Form.Check
+                type="radio"
+                label="Overnight Shipping: Next day delivery"
+                name="shippingMethod"
+                onChange={() =>
+                  handleSelectShippingMethod("Overnight Shipping")
+                }
+                checked={shippingMethod === "Overnight Shipping"}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showPaymentModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Payment</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group>
+              <Form.Label>Card Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter card number"
+                value={cardNumber}
+                onChange={(e) => setCardNumber(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>Expiry Date</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="MM/YY"
+                value={expiryDate}
+                onChange={(e) => setExpiryDate(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group>
+              <Form.Label>CVV</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="CVV"
+                value={cvv}
+                onChange={(e) => setCvv(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handlePayment}>
+            Pay
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showAlertModal} onHide={handleCloseModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Alert</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Fill out all fields</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Modal show={showHelpModal} onHide={handleCloseModal}>
         <Modal.Header closeButton>
           <Modal.Title>Help Information</Modal.Title>
         </Modal.Header>
